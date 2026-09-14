@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: embedding-service
+  namespace: rag-system
+  labels:
+    app: embedding-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: embedding-service
+  template:
+    metadata:
+      labels:
+        app: embedding-service
+    spec:
+      containers:
+      - name: embedding
+        # IMAGE_PLACEHOLDER — ye tumhare GitHub username se replace hoga
+        image: ghcr.io/rahulsingh12112/embedding-service:latest
+        ports:
+        - containerPort: 8080
+        env:
+        - name: MODEL_NAME
+          value: "BAAI/bge-base-en-v1.5"
+        resources:
+          requests:
+            memory: "2Gi"
+            cpu: "500m"
+          limits:
+            memory: "3Gi"
+            cpu: "1"
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 8080
+          initialDelaySeconds: 45   # model load hone do (cold start!)
+          periodSeconds: 10
+          failureThreshold: 6
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 60
+          periodSeconds: 30
