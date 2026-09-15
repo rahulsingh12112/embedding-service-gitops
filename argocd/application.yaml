@@ -1,0 +1,20 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: embedding-service
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/rahulsingh12112/embedding-service-gitops.git
+    targetRevision: main
+    path: k8s              # is folder ke saare manifests deploy karega
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: rag-system
+  syncPolicy:
+    automated:
+      prune: true          # git se hata to cluster se bhi hata
+      selfHeal: true       # koi manually badle to git wapas laaye
+    syncOptions:
+    - CreateNamespace=true
